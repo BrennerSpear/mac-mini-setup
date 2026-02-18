@@ -134,15 +134,18 @@ To connect OpenClaw to Discord, you need 3 IDs:
 3. **Guild (server) ID** — right-click the server name → Copy Server ID
 4. **Channel IDs** — right-click each channel → Copy Channel ID
 
-Then in your `openclaw-secrets.json`, fill in:
+Then in your `openclaw-secrets.json`, fill in these 3 values:
 ```json
 "channels": {
   "discord": {
     "enabled": true,
-    "token": "$DISCORD_BOT_TOKEN",     ← your bot token
-    "allowFrom": ["123456789..."],      ← your Discord user ID
+    "token": "paste-your-bot-token-here",
+    "groupPolicy": "allowlist",
+    "dmPolicy": "pairing",
+    "requireMention": false,
+    "allowFrom": ["paste-your-discord-user-id"],
     "guilds": {
-      "987654321...": {                 ← your server ID
+      "paste-your-guild-id": {
         "requireMention": false
       }
     }

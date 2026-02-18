@@ -117,17 +117,16 @@
   "channels": {
     "_comment_discord": "Get token from https://discord.com/developers/applications",
     "discord": {
-      "_comment": "Discord bot config. Get token from https://discord.com/developers/applications",
       "enabled": true,
-      "token": "$DISCORD_BOT_TOKEN",
+      "token": "${DISCORD_TOKEN}",
       "groupPolicy": "allowlist",
       "dmPolicy": "pairing",
+      "requireMention": false,
       "allowFrom": [
         "YOUR_DISCORD_USER_ID"
       ],
       "guilds": {
         "YOUR_GUILD_ID": {
-          "_comment": "Just listing the guild ID here allows ALL channels in this server. Add a 'channels' object only if you need per-channel system prompts or want to restrict to specific channels.",
           "requireMention": false
         }
       }
