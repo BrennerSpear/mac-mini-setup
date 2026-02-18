@@ -96,11 +96,16 @@
           "memory",
           "sessions"
         ],
+        "extraPaths": ["."],
+        "experimental": {
+          "sessionMemory": true
+        },
         "provider": "gemini",
         "fallback": "none"
       },
       "contextPruning": {
-        "mode": "off"
+        "mode": "off",
+        "ttl": "1h"
       },
       "compaction": {
         "mode": "safeguard"
@@ -154,6 +159,16 @@
       "channels": {}
     }
   },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+
+  "discovery": {
+    "wideArea": { "enabled": false },
+    "mdns": { "mode": "minimal" }
+  },
+
   "gateway": {
     "port": 18789,
     "mode": "local",
@@ -161,6 +176,9 @@
     "auth": {
       "mode": "token",
       "token": ""
+    },
+    "tailscale": {
+      "mode": "off"
     }
   },
   "memory": {
@@ -180,6 +198,12 @@
     }
   },
   "skills": {
+    "load": {
+      "extraDirs": ["~/.agents/skills"]
+    },
+    "install": {
+      "nodeManager": "bun"
+    },
     "allowBundled": [
       "discord",
       "gemini",
@@ -198,9 +222,9 @@
       "slack"
     ],
     "entries": {
-      "brave-search": {
-        "apiKey": ""
-      }
+      "brave-search": { "apiKey": "" },
+      "goplaces": { "apiKey": "" },
+      "nano-banana-pro": { "apiKey": "" }
     }
   },
   "plugins": {
