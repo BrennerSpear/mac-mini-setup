@@ -330,6 +330,7 @@ if command -v brew &>/dev/null; then
   record_skipped "Homebrew" "already installed"
 else
   echo ">>> Installing Homebrew..."
+  echo "    (requires admin/sudo access)"
   if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>&1; then
     record_installed "Homebrew"
   else
@@ -341,6 +342,20 @@ if set_brew_env; then
   record_installed "Homebrew PATH"
 else
   record_failed "Homebrew PATH" "could not set up brew in PATH"
+fi
+
+# Bail if brew is not available — everything below depends on it
+if ! command -v brew &>/dev/null; then
+  echo ""
+  echo "❌ Homebrew is not available. Cannot continue."
+  echo ""
+  echo "   Common fixes:"
+  echo "   1. Make sure this user has admin/sudo access"
+  echo "   2. Run: sudo dseditgroup -o edit -a \$(whoami) -t user admin"
+  echo "   3. Then re-run this script"
+  echo ""
+  print_summary
+  exit 1
 fi
 
 # ── 3. Taps ───────────────────────────────────────────────────────────────────
