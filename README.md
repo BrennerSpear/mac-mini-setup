@@ -122,6 +122,45 @@ The secrets files are `.gitignored` — safe to keep in the repo root locally.
 - Placed at `~/.openclaw/agents/main/agent/auth-profiles.json`
 - Supports multiple profiles per provider (e.g., API key + Max Plan token)
 
+### Discord bot setup
+
+To connect OpenClaw to Discord, you need 3 IDs:
+
+1. **Bot token** — from [Discord Developer Portal](https://discord.com/developers/applications)
+   - Create application → Bot → Reset Token → copy it
+   - Under Bot settings, enable **Message Content Intent**
+2. **Your Discord user ID** — right-click your username → Copy User ID
+   - (Enable Developer Mode first: User Settings → Advanced → Developer Mode)
+3. **Guild (server) ID** — right-click the server name → Copy Server ID
+4. **Channel IDs** — right-click each channel → Copy Channel ID
+
+Then in your `openclaw-secrets.json`, fill in:
+```json
+"channels": {
+  "discord": {
+    "enabled": true,
+    "token": "$DISCORD_BOT_TOKEN",     ← your bot token
+    "allowFrom": ["123456789..."],      ← your Discord user ID
+    "guilds": {
+      "987654321...": {                 ← your server ID
+        "channels": {
+          "111222333...": {             ← channel ID
+            "allow": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Add more channels by adding more entries to the `channels` object. Each channel can have an optional `systemPrompt` for specialized behavior.
+
+**Invite the bot to your server:**
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_APP_ID&permissions=412317273088&scope=bot
+```
+
 ### Slack bot creation
 
 Create a Slack bot programmatically without the UI:

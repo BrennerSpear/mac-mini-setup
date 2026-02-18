@@ -1,6 +1,5 @@
 {
   "_comment": "OpenClaw configuration template. Fill in your values and save as openclaw-secrets.json (gitignored). The setup script will merge this into ~/.openclaw/openclaw.json",
-
   "env": {
     "vars": {
       "OPENAI_API_KEY": "",
@@ -10,7 +9,6 @@
       "BRAVE_API_KEY": ""
     }
   },
-
   "auth": {
     "profiles": {
       "anthropic:default": {
@@ -23,11 +21,14 @@
       }
     },
     "order": {
-      "anthropic": ["anthropic:default"],
-      "openai": ["openai:default"]
+      "anthropic": [
+        "anthropic:default"
+      ],
+      "openai": [
+        "openai:default"
+      ]
     }
   },
-
   "models": {
     "mode": "merge",
     "providers": {
@@ -40,8 +41,16 @@
             "id": "claude-opus-4-6",
             "name": "Claude Opus 4.6",
             "reasoning": false,
-            "input": ["text", "image"],
-            "cost": { "input": 15, "output": 75, "cacheRead": 1.5, "cacheWrite": 18.75 },
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 15,
+              "output": 75,
+              "cacheRead": 1.5,
+              "cacheWrite": 18.75
+            },
             "contextWindow": 200000,
             "maxTokens": 8192
           },
@@ -49,8 +58,16 @@
             "id": "claude-sonnet-4-5-20250514",
             "name": "Claude Sonnet 4",
             "reasoning": false,
-            "input": ["text", "image"],
-            "cost": { "input": 3, "output": 15, "cacheRead": 0.3, "cacheWrite": 3.75 },
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 3,
+              "output": 15,
+              "cacheRead": 0.3,
+              "cacheWrite": 3.75
+            },
             "contextWindow": 200000,
             "maxTokens": 8192
           }
@@ -58,41 +75,70 @@
       }
     }
   },
-
   "agents": {
     "defaults": {
       "model": {
         "primary": "anthropic/claude-opus-4-6",
-        "fallbacks": ["anthropic/claude-sonnet-4-5"]
+        "fallbacks": [
+          "anthropic/claude-sonnet-4-5"
+        ]
       },
       "models": {
-        "anthropic/claude-opus-4-6": { "alias": "opus" },
-        "anthropic/claude-sonnet-4-5": { "alias": "sonnet" }
+        "anthropic/claude-opus-4-6": {
+          "alias": "opus"
+        },
+        "anthropic/claude-sonnet-4-5": {
+          "alias": "sonnet"
+        }
       },
       "memorySearch": {
-        "sources": ["memory", "sessions"],
+        "sources": [
+          "memory",
+          "sessions"
+        ],
         "provider": "gemini",
         "fallback": "none"
       },
-      "contextPruning": { "mode": "off" },
-      "compaction": { "mode": "safeguard" },
-      "heartbeat": { "every": "1h" },
+      "contextPruning": {
+        "mode": "off"
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "heartbeat": {
+        "every": "1h"
+      },
       "maxConcurrent": 6,
-      "subagents": { "maxConcurrent": 8 }
+      "subagents": {
+        "maxConcurrent": 8
+      }
     }
   },
-
   "channels": {
     "_comment_discord": "Get token from https://discord.com/developers/applications",
     "discord": {
-      "enabled": false,
-      "token": "",
+      "_comment": "Discord bot config. Get token from https://discord.com/developers/applications",
+      "enabled": true,
+      "token": "$DISCORD_BOT_TOKEN",
       "groupPolicy": "allowlist",
       "dmPolicy": "pairing",
-      "allowFrom": [],
-      "guilds": {}
+      "requireMention": false,
+      "allowFrom": [
+        "YOUR_DISCORD_USER_ID"
+      ],
+      "guilds": {
+        "YOUR_GUILD_ID": {
+          "_comment": "Your Discord server ID. Right-click server name > Copy Server ID (enable Developer Mode in Discord settings)",
+          "requireMention": false,
+          "channels": {
+            "YOUR_GENERAL_CHANNEL_ID": {
+              "_comment": "Right-click channel > Copy Channel ID",
+              "allow": true
+            }
+          }
+        }
+      }
     },
-
     "_comment_telegram": "Get bot token from @BotFather on Telegram",
     "telegram": {
       "enabled": false,
@@ -102,7 +148,6 @@
       "allowFrom": [],
       "groups": {}
     },
-
     "_comment_slack": "See scripts/create-slack-bot.sh or set up manually",
     "slack": {
       "enabled": false,
@@ -115,7 +160,6 @@
       "channels": {}
     }
   },
-
   "gateway": {
     "port": 18789,
     "mode": "local",
@@ -125,18 +169,22 @@
       "token": ""
     }
   },
-
   "memory": {
     "backend": "builtin",
     "qmd": {
       "includeDefaultMemory": true,
       "paths": [
-        { "path": ".", "name": "workspace", "pattern": "**/*.md" }
+        {
+          "path": ".",
+          "name": "workspace",
+          "pattern": "**/*.md"
+        }
       ],
-      "update": { "interval": "5m" }
+      "update": {
+        "interval": "5m"
+      }
     }
   },
-
   "skills": {
     "allowBundled": [
       "discord",
@@ -156,10 +204,11 @@
       "slack"
     ],
     "entries": {
-      "brave-search": { "apiKey": "" }
+      "brave-search": {
+        "apiKey": ""
+      }
     }
   },
-
   "plugins": {
     "allow": [
       "device-pair",
@@ -169,12 +218,17 @@
       "slack"
     ],
     "entries": {
-      "discord": { "enabled": false },
-      "telegram": { "enabled": false },
-      "slack": { "enabled": false }
+      "discord": {
+        "enabled": true
+      },
+      "telegram": {
+        "enabled": false
+      },
+      "slack": {
+        "enabled": false
+      }
     }
   },
-
   "session": {
     "reset": {
       "mode": "idle",
