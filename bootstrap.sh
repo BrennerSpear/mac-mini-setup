@@ -16,6 +16,23 @@ echo "║       Mac Mini Setup — Bootstrap             ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 
+# ── Step 0: Get sudo upfront ──────────────────────────────────────────────────
+# When piped via curl|bash, stdin isn't a terminal so sudo can't prompt.
+# We read the password from /dev/tty (the actual terminal) and prime sudo.
+if ! sudo -n true 2>/dev/null; then
+  echo ">>> This setup needs admin access. Enter your password:"
+  # Read password from the real terminal, not the pipe
+  sudo -v -S < /dev/tty
+  if [ $? -ne 0 ]; then
+    echo "❌ sudo authentication failed. Make sure this user has admin access."
+    exit 1
+  fi
+fi
+# Keep sudo alive in the background
+(while true; do sudo -n true; sleep 50; done) &
+SUDO_KEEPALIVE_PID=$!
+trap "kill $SUDO_KEEPALIVE_PID 2>/dev/null" EXIT
+
 # ── Step 1: Xcode Command Line Tools ──────────────────────────────────────────
 if ! xcode-select -p &>/dev/null; then
   echo ">>> Installing Xcode Command Line Tools (required for git, compilers, etc.)..."

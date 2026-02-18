@@ -315,8 +315,10 @@ if xcode-select -p &>/dev/null; then
 else
   echo ">>> Installing Xcode Command Line Tools..."
   xcode-select --install 2>/dev/null || true
-  echo "    Waiting for installation... (press Enter when done)"
-  read -r
+  echo "    Waiting for Xcode CLT installation to complete..."
+  until xcode-select -p &>/dev/null; do
+    sleep 5
+  done
   if xcode-select -p &>/dev/null; then
     record_installed "Xcode CLT"
   else
