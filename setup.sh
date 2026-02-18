@@ -458,12 +458,20 @@ if command -v fnm &>/dev/null; then
   if fnm ls 2>/dev/null | grep -q "v${NODE_VERSION}"; then
     record_skipped "Node v${NODE_VERSION}" "already installed"
   else
-    run_cmd "Node v${NODE_VERSION}" fnm install "$NODE_VERSION" || true
+    if fnm install "$NODE_VERSION" 2>&1; then
+      record_installed "Node v${NODE_VERSION}"
+    else
+      record_failed "Node v${NODE_VERSION}" "fnm install failed"
+    fi
   fi
 
-  fnm use "$NODE_VERSION" 2>/dev/null && fnm default "$NODE_VERSION" 2>/dev/null \
-    && record_installed "fnm default Node v${NODE_VERSION}" \
-    || record_failed "fnm default" "could not set default"
+  # Set default — fnm needs the installed version, use || true to not kill script
+  if fnm default "$NODE_VERSION" 2>&1; then
+    fnm use "$NODE_VERSION" 2>/dev/null || true
+    record_installed "fnm default Node v${NODE_VERSION}"
+  else
+    record_failed "fnm default" "could not set default"
+  fi
 else
   record_failed "fnm" "not found — install fnm first (included in FORMULAE)"
 fi
