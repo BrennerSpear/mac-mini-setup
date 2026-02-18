@@ -74,6 +74,7 @@ CASKS=(
   1password-cli
   raycast
   notion
+  # asana
   # linear-linear
   # todoist
   # rectangle              # window management
