@@ -137,6 +137,23 @@
   },
 
   "skills": {
+    "allowBundled": [
+      "discord",
+      "gemini",
+      "github",
+      "mcporter",
+      "nano-banana-pro",
+      "openai-whisper-api",
+      "session-logs",
+      "skill-creator",
+      "tmux",
+      "gog",
+      "goplaces",
+      "healthcheck",
+      "nano-pdf",
+      "openai-image-gen",
+      "slack"
+    ],
     "entries": {
       "brave-search": { "apiKey": "" }
     }

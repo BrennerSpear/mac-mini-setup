@@ -15,7 +15,7 @@ openclaw sessions --active 120 --json
 ```
 
 Parse the output to get session keys and IDs. Skip subagent sessions (they're task workers, not interesting for reflection). Focus on:
-- Telegram group/topic sessions (real user interactions)
+- Group/channel sessions (real user interactions)
 - Direct sessions (1:1 with the user)
 - Cron-triggered sessions (how did automated tasks go?)
 

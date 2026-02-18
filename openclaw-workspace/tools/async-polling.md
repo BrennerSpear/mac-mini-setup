@@ -6,10 +6,10 @@
 
 1. Polls the job status every N seconds
 2. Downloads the result when complete
-3. Sends it to Telegram (or wherever) via `curl` to the OpenClaw gateway
+3. Sends the result to your preferred channel via the `message` tool
 
 ```bash
-# Example: poll x402 video job and send to Telegram when done
+# Example: poll a video job and send when done
 exec background=true:
 while true; do
   STATUS=$(mcporter call x402scan.authed_call url="https://stablestudio.io/api/x402/jobs/$JOB_ID" method=GET 2>&1 | jq -r '.data.status')

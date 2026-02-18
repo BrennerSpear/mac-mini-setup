@@ -1,6 +1,6 @@
 # System Watchdog
 
-Nightly system resource monitoring for the NUC (32GB RAM, Linux). Detects wasteful or suspicious processes and reports via Telegram only when something needs attention.
+Nightly system resource monitoring. Detects wasteful or suspicious processes and reports only when something needs attention.
 
 ## How to Invoke
 
@@ -70,9 +70,9 @@ If **any** issue is found, `suspicious` is `true` and a report should be sent.
 1. Run `check.sh`
 2. Parse the JSON output
 3. If `suspicious` is `false` → do nothing (no message)
-4. If `suspicious` is `true` → format a concise Telegram report and send to main topic
+4. If `suspicious` is `true` → format a concise report and send via your configured channel
 
-### Report Format (Telegram)
+### Report Format
 
 ```
 ⚠️ System Watchdog Report

@@ -49,7 +49,7 @@ workspace/
 Every agent turn = ONE message. Never send multiple messages in rapid succession.
 
 ## Task Delegation
-Delegate to tmux sessions running coding agents when appropriate. See `docs/tmux-delegation.md`.
+Use `sessions_spawn` for sub-agent delegation. Keep tasks self-contained with clear instructions.
 
 ## Documents First
 Documents are first-class. Chat is ephemeral. Significant outputs should be persistent documents.

@@ -49,7 +49,7 @@ uvx --with requests python3 fetch.py
 3. Acknowledge briefly ("On it — spinning up sub-agent")
 4. Sub-agent either:
    - Reports back with results (quick tasks)
-   - Creates Telegram forum topic (complex tasks)
+   - Posts to your preferred channel (complex tasks)
 ```
 
 ### Sub-Agent Conventions
@@ -73,26 +73,6 @@ sessions_spawn label: "research-flights-miami" task: "..."
   git clone ~/projects/project /tmp/project-agent-1
   git clone ~/projects/project /tmp/project-agent-2
   ```
-
-### Model Selection Strategy
-
-**Tier system for sub-agent model selection:**
-
-| Tier | Model | Provider | Use For |
-|------|-------|----------|---------|
-| **S** | `anthropic/claude-opus-4-6` | Anthropic Direct | Complex reasoning, architecture decisions |
-| **A** | `anthropic/claude-sonnet-4-20250514` | Anthropic Direct | General tasks (default choice) |
-| **A** | `openrouter/moonshotai/kimi-k2.5` | OpenRouter | Non-Anthropic alternative for diversity |
-| **B** | `openrouter/qwen/qwen3-coder` | OpenRouter | Code analysis, refactoring |
-| **C** | Free models (Qwen) | OpenRouter | Cost-sensitive simple tasks |
-
-**Key rules:**
-- **Never route Anthropic through OpenRouter** if you have direct access
-- **Default for sub-agents:** Opus (covered by Max Plan — it's free)
-- **Cron jobs:** Sonnet for reliable tool calling
-- **3+ simultaneous sub-agents:** Mix providers to spread rate limits
-- **NEVER use DeepSeek** — unreliable tool calling (garbled XML). Banned.
-- **Budget models need guardrails:** feature branches, extra lint checks
 
 ## Memory & State Management
 
@@ -209,7 +189,7 @@ while true; do
   STATUS=$(check_job_status $JOB_ID)
   if [ "$STATUS" = "complete" ]; then
     download_result $JOB_ID /tmp/result.mp4
-    send_to_telegram /tmp/result.mp4
+    send_result /tmp/result.mp4
     break
   fi
   sleep 10
@@ -275,8 +255,8 @@ sag -v "Nova" "Here's what happened next..."
 ```bash
 # ✅ Reliable image delivery
 message action: send
-        channel: telegram
-        target: -1234567890
+        channel: YOUR_CHANNEL
+        target: YOUR_TARGET_ID
         filePath: /path/to/image.png
         caption: "Screenshot results"
 

@@ -11,22 +11,17 @@ Our conventions for creating cron jobs in OpenClaw.
 
 | Setting | Default | Why |
 |---------|---------|-----|
-| **Model** | `openrouter/deepseek/deepseek-v3.2` | Cheap (~$0.003/run), good enough for most automated tasks |
+| **Model** | `anthropic/claude-sonnet-4-20250514` | Good enough for most automated tasks |
 | **Session** | `isolated` | Cron jobs run in their own session, not the main chat |
-| **Delivery** | `"mode": "none"` | Job handles its own output (posts to Telegram, etc.) |
+| **Delivery** | `"mode": "none"` | Job handles its own output (posts to your channel, etc.) |
 | **Timeout** | 120-180s | Most jobs should finish fast |
 
 ## When to Use a Different Model
 
 | Scenario | Model | Why |
 |----------|-------|-----|
-| Simple checks, file ops, lookups | `openrouter/deepseek/deepseek-v3.2` | Cheapest that's reliable |
-| Free but less reliable | `openrouter/qwen/qwen3-next-80b-a3b-instruct:free` | $0, good for simple stuff |
-| Needs code intelligence | `openrouter/qwen/qwen3-coder` | Better at code tasks |
-| Needs real reasoning | `anthropic/claude-sonnet-4-20250514` | When cheap models fumble |
-| Complex multi-step work | `anthropic/claude-opus-4-6` | Last resort for cron — expensive |
-
-**Rule of thumb:** Start with DeepSeek. Only upgrade if the task actually fails with it.
+| Default | `anthropic/claude-sonnet-4-20250514` | Good enough for most automated tasks |
+| Complex multi-step | `anthropic/claude-opus-4-6` | When tasks need real reasoning |
 
 ## Job Template
 
@@ -42,7 +37,7 @@ Our conventions for creating cron jobs in OpenClaw.
   "payload": {
     "kind": "agentTurn",
     "message": "TASK INSTRUCTIONS HERE",
-    "model": "openrouter/deepseek/deepseek-v3.2",
+    "model": "anthropic/claude-sonnet-4-20250514",
     "timeoutSeconds": 120
   },
   "delivery": {
@@ -70,26 +65,19 @@ Our conventions for creating cron jobs in OpenClaw.
 4. **Include error handling** — What should happen if a command fails?
 5. **Keep instructions self-contained** — The cron agent wakes up with no context. Everything it needs should be in the task message.
 
-## Telegram Posting from Cron Jobs
+## Posting from Cron Jobs
 
-When a cron job needs to notify us, include these instructions in the task:
+When a cron job needs to notify you, include these instructions in the task:
 
 ```
-Post to Telegram using the message tool:
+Post using the message tool:
 - action: send
-- channel: telegram
-- target: YOUR_GROUP_ID
-- threadId: TOPIC_ID
+- channel: YOUR_CHANNEL (e.g., discord, telegram, slack)
+- target: YOUR_TARGET_ID
 - message: Your formatted message
 ```
 
-**Topic IDs:**
-- `1` — Main topic (general updates, alerts)
-- `573` — Research
-- `1032` — Crypto
-- `1488` — PR updates / dev notifications
-- `1869` — Sticker store
-- `3188` — Activity feed (workspace changes)
+Configure the channel and target to match your setup.
 
 ## Delivery Modes
 
@@ -100,10 +88,9 @@ Post to Telegram using the message tool:
 
 ## Anti-Patterns
 
-❌ **Don't use Opus for cron jobs** unless the task genuinely needs it. Most cron tasks are simple checks.
-❌ **Don't use heartbeat** for things that can be a cron job. Heartbeat runs in the main session (Opus) and costs way more.
+❌ **Don't use heartbeat** for things that can be a cron job. Heartbeat runs in the main session and costs more.
 ❌ **Don't create cron jobs that loop/poll** — each run should be a single check. If you need polling, use a background exec script instead.
-❌ **Don't set delivery mode to "announce"** and also have the job post to Telegram — you'll get duplicate messages.
+❌ **Don't set delivery mode to "announce"** and also have the job post to a channel — you'll get duplicate messages.
 
 ## Existing Jobs (Reference)
 
