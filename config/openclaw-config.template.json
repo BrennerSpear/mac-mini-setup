@@ -108,6 +108,8 @@
       "heartbeat": {
         "every": "1h"
       },
+      "verboseDefault": "on",
+      "blockStreamingDefault": "on",
       "maxConcurrent": 6,
       "subagents": {
         "maxConcurrent": 8
@@ -221,6 +223,34 @@
       }
     }
   },
+  "browser": {
+    "headless": true
+  },
+
+  "messages": {
+    "queue": {
+      "mode": "steer+backlog"
+    },
+    "ackReactionScope": "group-mentions"
+  },
+
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "session-memory": {
+          "enabled": true
+        }
+      }
+    }
+  },
+
+  "tools": {
+    "sessions": {
+      "visibility": "all"
+    }
+  },
+
   "session": {
     "reset": {
       "mode": "idle",

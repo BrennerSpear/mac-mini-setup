@@ -23,8 +23,10 @@ Each Discord channel/thread can have its own system prompt that gets injected in
 ```json
 "guilds": {
   "YOUR_GUILD_ID": {
+    "requireMention": false,
     "channels": {
       "CHANNEL_ID": {
+        "allow": true,
         "systemPrompt": "This channel is for project X. Focus on..."
       }
     }
@@ -32,7 +34,23 @@ Each Discord channel/thread can have its own system prompt that gets injected in
 }
 ```
 
-Use this to give the agent persistent context about what a channel is for — project details, rules, goals, relevant repos, etc. The prompt appears as system context on every message in that channel without anyone needing to repeat it.
+**Important:** Every channel needs `"allow": true` to be active — the bot won't respond in channels that aren't explicitly allowed (when using `groupPolicy: "allowlist"`). The `systemPrompt` is optional but powerful.
+
+**Guild-level settings:**
+- `requireMention: false` — bot responds to all messages in allowed channels (not just @mentions)
+
+**Channel-level settings:**
+- `allow: true` — required for the bot to respond in this channel
+- `systemPrompt` — persistent context injected on every message (project details, rules, repos, persona, etc.)
+
+Use system prompts to give the agent persistent context about what a channel is for — project details, rules, goals, relevant repos, specialized persona. The prompt appears as system context on every message in that channel without anyone needing to repeat it.
+
+**Example channel types:**
+- Project channels: point to repo path + AGENTS.md
+- Research channels: set research workflow rules
+- Therapy/coaching: set a specialized persona
+- Activity feeds: describe the automated posting format
+- Brain dumps: instruct how to process unstructured thoughts
 
 ## Channel Organization Tips
 - Use categories to group channels by function
