@@ -195,6 +195,31 @@ else
   ok "Config installed: $OPENCLAW_DIR/openclaw.json"
 fi
 
+# 2b. Strip empty-string sensitive values to prevent RangeError crash
+# OpenClaw's redactRawText() calls replaceAll("") on empty values, which
+# explodes the config string exponentially and crashes the gateway.
+if command -v jq &>/dev/null && [ -f "$OPENCLAW_DIR/openclaw.json" ]; then
+  CLEANED=$(jq '
+    # Remove empty string env vars
+    (if .env.vars then .env.vars |= with_entries(select(.value != "")) else . end) |
+    # Remove empty string channel tokens
+    (if .channels.discord.token == "" then del(.channels.discord.token) else . end) |
+    (if .channels.telegram.botToken == "" then del(.channels.telegram.botToken) else . end) |
+    (if .channels.slack.botToken == "" then del(.channels.slack.botToken) else . end) |
+    (if .channels.slack.appToken == "" then del(.channels.slack.appToken) else . end) |
+    # Remove empty string gateway token
+    (if .gateway.auth.token == "" then del(.gateway.auth.token) else . end) |
+    # Remove empty string skill API keys
+    (if .skills.entries then .skills.entries |= with_entries(
+      .value |= with_entries(select(.value != ""))
+    ) | .skills.entries |= with_entries(select(.value | length > 0)) else . end)
+  ' "$OPENCLAW_DIR/openclaw.json" 2>/dev/null) || CLEANED=""
+  if [ -n "$CLEANED" ]; then
+    echo "$CLEANED" > "$OPENCLAW_DIR/openclaw.json"
+    ok "Stripped empty sensitive values (prevents RangeError crash)"
+  fi
+fi
+
 # 3. Place env file
 if [ -n "$ENV_FILE" ]; then
   if [ -f "$OPENCLAW_DIR/.env" ]; then

@@ -1,5 +1,6 @@
 {
   "_comment": "OpenClaw configuration template. Fill in your values and save as openclaw-secrets.json (gitignored). The setup script will merge this into ~/.openclaw/openclaw.json",
+  "_warning": "IMPORTANT: Remove any env.vars or token fields you leave empty before applying. Empty string values ('') cause a RangeError crash in openclaw's config redaction. The setup script strips these automatically.",
   "env": {
     "vars": {
       "OPENAI_API_KEY": "",

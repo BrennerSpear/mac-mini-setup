@@ -283,6 +283,21 @@ Both `pandoc` and `tectonic` are installed via Homebrew. No intermediate HTML st
 4. **Isolate parallel repo work** — separate temp dirs prevent merge conflicts
 5. **Use printf not echo** for env vars — trailing newlines break secrets
 
+### Known Bugs
+
+**`RangeError: Invalid string length` on `config.get`**
+Empty string API keys in `openclaw.json` (e.g. `"OPENAI_API_KEY": ""`) cause `redactRawText()` to call `replaceAll("")`, which explodes the config string exponentially (~5KB → 19GB in 5 passes → crash). Gateway runs but config/status endpoints fail.
+
+**Fix:** Remove all empty-string sensitive fields:
+```bash
+openclaw config unset env.vars.OPENAI_API_KEY
+openclaw config unset env.vars.ANTHROPIC_API_KEY
+# ... any other empty key/token fields
+openclaw gateway stop && openclaw gateway start
+```
+
+**Prevention:** Don't leave empty `""` values for API keys or tokens in config. Either set a real value or remove the field entirely.
+
 ### Success Patterns
 1. **Default to delegation** — sub-agents keep main session responsive
 2. **Batch heartbeat checks** — more efficient than individual cron jobs
