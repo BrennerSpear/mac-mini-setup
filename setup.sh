@@ -660,6 +660,17 @@ if [ "${APPLY_SCREENSHOT_DEFAULTS:-false}" = true ]; then
   run_cmd "screenshots: location" defaults write com.apple.screencapture location -string "$HOME/Documents/Screenshots" || true
 fi
 
+# ── 12b. Disable Spotlight hotkey (Cmd+Space) so Raycast can use it ──────────
+
+if [ "${APPLY_RAYCAST_HOTKEY:-true}" = true ]; then
+  echo ">>> Disabling Spotlight Cmd+Space (Raycast will claim it)..."
+  # Disable Spotlight's Cmd+Space shortcut via keyboard shortcuts plist
+  # AppleSymbolicHotKeys key 64 = Spotlight Search, key 65 = Finder Search
+  run_cmd "spotlight: disable Cmd+Space" defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 '{ enabled = 0; value = { parameters = (65535, 49, 1048576); type = "standard"; }; }' || true
+  run_cmd "spotlight: disable Cmd+Alt+Space" defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 '{ enabled = 0; value = { parameters = (65535, 49, 1572864); type = "standard"; }; }' || true
+  echo "  ℹ️  Open Raycast after setup and set Cmd+Space as its hotkey in preferences."
+fi
+
 # ── 13. Create directories ───────────────────────────────────────────────────
 
 echo ">>> Creating directories..."
