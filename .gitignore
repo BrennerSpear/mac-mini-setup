@@ -6,3 +6,4 @@ openclaw-secrets.json
 openclaw-secrets.env
 openclaw-auth-profiles.json
 .slack-app-state.json
+.handoff-context.md

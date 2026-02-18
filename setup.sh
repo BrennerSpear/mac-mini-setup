@@ -732,8 +732,10 @@ if [ "$HANDOFF" = true ]; then
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
-    # Build handoff context with installed/failed/skipped items and available-but-not-installed
-    HANDOFF_CONTEXT="$(cat "$SCRIPT_DIR/scripts/handoff-prompt.md")
+    # Write handoff context to a file Claude Code can read
+    HANDOFF_FILE="$SCRIPT_DIR/.handoff-context.md"
+    cat > "$HANDOFF_FILE" << HANDOFF_EOF
+$(cat "$SCRIPT_DIR/scripts/handoff-prompt.md")
 
 ## What was installed
 $(printf '%s\n' "${INSTALLED_ITEMS[@]-}" | sed 's/^/- /')
@@ -747,7 +749,20 @@ $(echo -e "$SKIPPED_CONFIG_ITEMS")
 
 ## Config file location
 $SCRIPT_DIR/config.sh — edit this to add/remove packages permanently
-"
-    exec claude --dangerously-skip-permissions -p "$HANDOFF_CONTEXT"
+HANDOFF_EOF
+
+    # Check if Claude is authenticated
+    if claude --version &>/dev/null && claude -p "say ok" &>/dev/null 2>&1; then
+      # Authenticated — launch with the handoff prompt
+      exec claude --dangerously-skip-permissions -p "Read $HANDOFF_FILE and follow its instructions. Start by checking what's already configured and ask what to tackle first."
+    else
+      # Not authenticated — launch interactively so user can log in
+      echo "  Claude Code needs authentication first."
+      echo "  After logging in, run:"
+      echo ""
+      echo "    claude -p \"Read $HANDOFF_FILE and follow its instructions.\""
+      echo ""
+      exec claude
+    fi
   fi
 fi
