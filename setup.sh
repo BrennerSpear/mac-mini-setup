@@ -453,8 +453,7 @@ done
 
 echo ">>> Node.js via fnm..."
 if command -v fnm &>/dev/null; then
-  eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell bash 2>/dev/null || true)"
-
+  # Install the desired version first (before fnm env, which tries to activate "default")
   if fnm ls 2>/dev/null | grep -q "v${NODE_VERSION}"; then
     record_skipped "Node v${NODE_VERSION}" "already installed"
   else
@@ -465,12 +464,15 @@ if command -v fnm &>/dev/null; then
     fi
   fi
 
-  # Set default — fnm needs the installed version, use || true to not kill script
-  if fnm default "$NODE_VERSION" 2>&1; then
-    fnm use "$NODE_VERSION" 2>/dev/null || true
+  # Set as default, then activate
+  fnm default "$NODE_VERSION" 2>/dev/null || true
+  eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell bash 2>/dev/null)" || true
+  fnm use "$NODE_VERSION" 2>/dev/null || true
+
+  if fnm current 2>/dev/null | grep -q "${NODE_VERSION}"; then
     record_installed "fnm default Node v${NODE_VERSION}"
   else
-    record_failed "fnm default" "could not set default"
+    record_failed "fnm default" "could not activate v${NODE_VERSION}"
   fi
 else
   record_failed "fnm" "not found — install fnm first (included in FORMULAE)"
