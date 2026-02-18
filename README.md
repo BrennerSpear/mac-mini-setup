@@ -1,0 +1,192 @@
+# Mac Mini Setup
+
+One command to go from a fresh Mac mini to a fully configured dev machine.
+
+```bash
+curl -fsSL mac.brennerspear.com | bash
+```
+
+Or with **Claude Code handoff** — runs the automated setup, then drops you into Claude Code to interactively finish the rest (CLI logins, SSH keys, API keys, app sign-ins):
+
+```bash
+curl -fsSL mac.brennerspear.com | bash -s -- --handoff
+```
+
+## What it does
+
+1. Installs Xcode Command Line Tools
+2. Installs Homebrew
+3. Installs CLI tools (fd, fzf, gh, tmux, uv, etc.)
+4. Installs apps via Homebrew Cask (Slack, Discord, Arc, Cursor, 1Password, etc.)
+5. Installs Bun + global packages (TypeScript, Vercel CLI, etc.)
+6. Sets up Node.js via fnm
+7. Optionally installs Rust, Prezto/Powerlevel10k, OpenClaw
+8. Applies macOS defaults (dock, Finder, dark mode, etc.)
+9. Creates directory structure
+10. Installs VS Code / Cursor extensions (opt-in)
+
+Everything is **idempotent** — safe to run multiple times. It skips what's already installed and reports what changed.
+
+## Customization
+
+Edit `config.sh` to add/remove apps, tools, and settings:
+
+```bash
+git clone https://github.com/BrennerSpear/mac-mini-setup.git ~/projects/mac-mini-setup
+cd ~/projects/mac-mini-setup
+
+# Edit the config
+code config.sh   # or: subl config.sh
+
+# Preview what would change
+./setup.sh --dry-run
+
+# Run it
+./setup.sh
+```
+
+## Usage
+
+```bash
+# Full setup (default — no editor extensions)
+./setup.sh
+
+# Preview changes without applying
+./setup.sh --dry-run
+
+# Include VS Code / Cursor extensions
+./setup.sh --with-extensions
+
+# Install only editor extensions
+./setup.sh --extensions-only
+
+# Use a custom config
+./setup.sh --config my-team-config.sh
+```
+
+## What's in `config.sh`
+
+| Section | What you configure |
+|---|---|
+| `TAPS` | Homebrew taps |
+| `FORMULAE` | CLI tools (brew install) |
+| `CASKS` | GUI apps (brew install --cask) |
+| `BUN_GLOBALS` | Pinned global npm/bun packages |
+| `EXTENSIONS` | VS Code / Cursor extensions |
+| `DIRS` | Directories to create |
+| macOS defaults | Dock, Finder, dark mode, screenshots |
+| `INSTALL_OPENCLAW` | OpenClaw + agent tools |
+| `INSTALL_RUST` | Rust toolchain |
+| `POST_SCRIPTS` | Scripts to run after setup |
+
+## OpenClaw Setup
+
+OpenClaw can be configured **non-interactively** using a JSON config file + env file:
+
+### Quick start
+
+```bash
+# 1. Copy templates
+cp config/openclaw-config.template.json openclaw-secrets.json
+cp config/openclaw-env.template openclaw-secrets.env
+cp config/openclaw-auth-profiles.template.json openclaw-auth-profiles.json
+
+# 2. Fill in your API keys and channel tokens
+code openclaw-secrets.json openclaw-secrets.env openclaw-auth-profiles.json
+
+# 3. Run setup (or set INSTALL_OPENCLAW=true in config.sh and run setup.sh)
+scripts/setup-openclaw.sh --config openclaw-secrets.json --env openclaw-secrets.env --auth-profiles openclaw-auth-profiles.json
+
+# 4. Verify
+scripts/setup-openclaw.sh --check
+```
+
+The secrets files are `.gitignored` — safe to keep in the repo root locally.
+
+### Config template structure
+
+**`config/openclaw-config.template.json`** — Full OpenClaw config:
+- AI provider settings (models, auth profiles, fallback chains)
+- Channel configs (Discord, Telegram, Slack — each with access control)
+- Gateway settings (port, auth, trusted proxies)
+- Memory, skills, plugins
+- Agent defaults (model, workspace, heartbeat)
+
+**`config/openclaw-env.template`** — API keys and tokens:
+- AI provider keys (Anthropic, OpenAI, OpenRouter, Gemini)
+- Channel tokens (Discord bot token, Telegram bot token, Slack tokens)
+- Service keys (Brave Search, etc.)
+
+**`config/openclaw-auth-profiles.template.json`** — Provider auth profiles:
+- Actual API keys/tokens per provider profile (Anthropic, OpenAI, OpenRouter, etc.)
+- Placed at `~/.openclaw/agents/main/agent/auth-profiles.json`
+- Supports multiple profiles per provider (e.g., API key + Max Plan token)
+
+### Slack bot creation
+
+Create a Slack bot programmatically without the UI:
+
+```bash
+# 1. Get a config token from https://api.slack.com/apps
+#    → Your App Configuration Tokens → Generate Token
+
+# 2. Create the bot (uses the manifest in config/slack-app-manifest.json)
+scripts/create-slack-bot.sh <your-config-token>
+
+# 3. The script creates the app with all scopes and Socket Mode.
+#    You'll need to manually:
+#    - Generate an app-level token (xapp-...) for Socket Mode
+#    - Install to your workspace
+#    - Copy the bot token (xoxb-...)
+```
+
+The manifest at `config/slack-app-manifest.json` includes all scopes OpenClaw needs:
+- Message read/write across channels, DMs, groups
+- Reactions, pins, files, emoji
+- Socket Mode enabled by default
+
+## Post-setup (manual)
+
+Some things can't be automated — the setup script reminds you:
+
+- **Sign into apps**: 1Password, Slack, Discord, Tailscale, Spotify, etc.
+- **Raycast**: Sign in to sync settings (has its own cloud sync)
+- **CLI logins**: `gh auth login`, `vercel login`
+- **SSH keys**: Copy or generate `~/.ssh/` keys
+- **Tailscale**: `tailscale up` (requires browser auth)
+- **iCloud**: Sign in via System Settings
+
+## Optional scripts
+
+In the `scripts/` directory:
+
+| Script | What it does |
+|---|---|
+| `setup-zshrc.sh` | Shell aliases, git shortcuts, AI agent commands (`cc`, `claumux`, etc.) |
+| `setup-openclaw.sh` | Non-interactive OpenClaw configuration |
+| `bootstrap-openclaw-workspace.sh` | Workspace files, clawhub skills, custom skills, cron jobs |
+| `create-slack-bot.sh` | Create Slack bot via Manifest API |
+| `install-arc-extensions.sh` | Opens Chrome Web Store pages for extensions |
+| `import-keyboard-shortcuts.sh` | Imports macOS keyboard shortcut plists |
+
+Enable post-scripts in `config.sh`:
+```bash
+POST_SCRIPTS=(
+  "scripts/import-keyboard-shortcuts.sh"
+  "scripts/install-arc-extensions.sh"
+)
+```
+
+## For teams
+
+Fork this repo, edit `config.sh` for your team's stack, and give new hires the one-liner. Consider:
+
+- Adding your team's Slack workspace setup instructions
+- Pinning specific tool versions your codebase needs
+- Adding `POST_SCRIPTS` for team-specific config (VPN, internal tools, etc.)
+- Creating multiple config files: `config-eng.sh`, `config-design.sh`, etc.
+- Pre-filling an `openclaw-secrets.json` with non-sensitive defaults (model configs, scopes) and having engineers add only their API keys
+
+## License
+
+MIT

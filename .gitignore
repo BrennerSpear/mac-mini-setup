@@ -1,0 +1,8 @@
+.DS_Store
+*.local
+
+# Secrets — never commit these
+openclaw-secrets.json
+openclaw-secrets.env
+openclaw-auth-profiles.json
+.slack-app-state.json
