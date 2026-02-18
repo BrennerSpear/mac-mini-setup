@@ -60,8 +60,9 @@ fi
 mkdir -p "$(dirname "$CLONE_DIR")"
 
 if [ -d "$CLONE_DIR/.git" ]; then
-  echo ">>> Repo already cloned at $CLONE_DIR — pulling latest..."
-  git -C "$CLONE_DIR" pull --ff-only
+  echo ">>> Repo already cloned at $CLONE_DIR — updating..."
+  git -C "$CLONE_DIR" fetch origin
+  git -C "$CLONE_DIR" reset --hard origin/main
 else
   echo ">>> Cloning setup repo..."
   git clone "$REPO_URL" "$CLONE_DIR"
