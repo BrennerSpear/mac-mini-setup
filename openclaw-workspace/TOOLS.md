@@ -3,10 +3,10 @@
 Short cross-cutting gotchas and environment quirks. Detailed tool docs in `tools/*.md` — searchable via `memory_search`.
 
 ## npm Wrapper
-`/opt/homebrew/bin/npm` may redirect to `bun`. Use `bun install`, `bun install -g <pkg>`.
+`/opt/homebrew/bin/npm` redirects to `bun`. Use `bun install`, `bun install -g <pkg>`. Escape hatch: `npm-real <args>`.
 
-## Tmux Sessions
-Default tmux server only. Naming: `oc-${project}-${feature}`. Easy find: `tmux ls | grep oc-`.
+## PDF Generation
+`md2pdf` script in `scripts/` converts Markdown → PDF via pandoc + tectonic. See `tools/pdf.md`.
 
 ## Scripting
 - Prefer bash `.sh` scripts

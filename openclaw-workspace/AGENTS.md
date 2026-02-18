@@ -30,15 +30,15 @@ The root files (AGENTS, SOUL, TOOLS, IDENTITY, USER, HEARTBEAT) are injected int
 ## Workspace Structure
 ```
 workspace/
-├── docs/       — playbooks, how-tos, reference docs
-├── tools/      — per-tool/integration reference
+├── docs/       — playbooks, how-tos (openclaw-playbook, doc-layers)
+├── tools/      — per-tool reference (browser, discord, docker, pdf, uv-python, async-polling)
 ├── memory/     — curated topic files + daily/ logs
-├── research/   — research outputs
-├── scripts/    — utility scripts
-├── templates/  — reusable templates
-├── images/     — screenshots, generated images
+├── scripts/    — utility scripts (error-digest.sh, md2pdf.sh)
+├── research/   — research outputs (created as needed)
+├── templates/  — reusable templates (created as needed)
+├── images/     — screenshots, generated images (created as needed)
 ├── tmp/        — ephemeral scratch
-└── *.md        — root files (injected every session)
+└── *.md        — root files (AGENTS, SOUL, IDENTITY, USER, TOOLS, HEARTBEAT, MEMORY)
 ```
 
 ## External vs Internal
