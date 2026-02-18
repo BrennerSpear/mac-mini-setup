@@ -11,6 +11,8 @@ Repo: ~/projects/mac-mini-setup
 - Installed Node.js via fnm
 - Set up shell aliases and shortcuts (~/.zshrc)
 - Created CLI symlinks (subl, code)
+- Configured git defaults (init.defaultBranch, pull.rebase, push.autoSetupRemote, fetch.prune, rebase.autoStash)
+- Installed global .gitignore_global (DS_Store, node_modules, .env, __pycache__, etc.)
 - Applied macOS defaults (dock, Finder, dark mode, etc.)
 - Installed OpenClaw + agent-browser + mcporter + clawhub
 - Placed OpenClaw config files (openclaw.json, .env, auth-profiles.json)

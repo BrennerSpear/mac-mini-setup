@@ -6,6 +6,11 @@
 # Everything is opt-in. Comment out what you don't want.
 # =============================================================================
 
+# ── Git config ────────────────────────────────────────────────────────────────
+# Leave blank to skip (or fill in during bootstrap)
+GIT_USER_NAME=""
+GIT_USER_EMAIL=""
+
 # ── Node version (via fnm) ────────────────────────────────────────────────────
 NODE_VERSION="24"
 

@@ -14,10 +14,9 @@ Ask the user about each unchecked item — don't skip anything.
 - [ ] Add to GitHub: `gh ssh-key add ~/.ssh/id_ed25519.pub`
 
 ## 3. Git Config
-- [ ] `git config --global user.name "Your Name"`
-- [ ] `git config --global user.email "your@email.com"`
-- [ ] `git config --global init.defaultBranch main`
-- [ ] `git config --global pull.rebase true`
+The setup script already configured: `init.defaultBranch main`, `pull.rebase true`, `push.autoSetupRemote true`, `fetch.prune true`, `rebase.autoStash true`, and a global `.gitignore_global`.
+- [ ] Set your name: `git config --global user.name "Your Name"` (skip if set in config.sh)
+- [ ] Set your email: `git config --global user.email "your@email.com"` (skip if set in config.sh)
 
 ## 4. API Keys & Auth Profiles
 - [ ] Anthropic API key (or Max Plan token) in auth-profiles.json

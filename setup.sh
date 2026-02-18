@@ -529,7 +529,57 @@ if [ "${INSTALL_RUST:-false}" = true ]; then
   fi
 fi
 
-# ── 10. Shell setup (optional) ───────────────────────────────────────────────
+# ── 10. Git config ───────────────────────────────────────────────────────────
+
+echo ""
+echo ">>> Git configuration..."
+
+# Global gitignore
+GITIGNORE_SRC="$SCRIPT_DIR/config/gitignore_global"
+GITIGNORE_DEST="$HOME/.gitignore_global"
+if [ -f "$GITIGNORE_SRC" ]; then
+  if [ -f "$GITIGNORE_DEST" ]; then
+    record_skipped "gitignore_global" "already exists"
+  else
+    cp "$GITIGNORE_SRC" "$GITIGNORE_DEST"
+    git config --global core.excludesfile "$GITIGNORE_DEST"
+    record_installed "gitignore_global"
+  fi
+fi
+
+# Git defaults (idempotent — safe to re-run)
+git config --global init.defaultBranch main
+git config --global pull.rebase true
+git config --global push.autoSetupRemote true
+git config --global fetch.prune true
+git config --global diff.colorMoved default
+git config --global rebase.autoStash true
+record_installed "git defaults (init.defaultBranch, pull.rebase, push.autoSetupRemote, etc.)"
+
+# User info (only if set in config.sh)
+if [ -n "${GIT_USER_NAME:-}" ]; then
+  git config --global user.name "$GIT_USER_NAME"
+  record_installed "git user.name → $GIT_USER_NAME"
+else
+  if [ -z "$(git config --global user.name 2>/dev/null)" ]; then
+    record_skipped "git user.name" "not set — configure in config.sh or run: git config --global user.name 'Your Name'"
+  else
+    record_skipped "git user.name" "already set to '$(git config --global user.name)'"
+  fi
+fi
+
+if [ -n "${GIT_USER_EMAIL:-}" ]; then
+  git config --global user.email "$GIT_USER_EMAIL"
+  record_installed "git user.email → $GIT_USER_EMAIL"
+else
+  if [ -z "$(git config --global user.email 2>/dev/null)" ]; then
+    record_skipped "git user.email" "not set — configure in config.sh or run: git config --global user.email 'you@example.com'"
+  else
+    record_skipped "git user.email" "already set to '$(git config --global user.email)'"
+  fi
+fi
+
+# ── 11. Shell setup (optional) ───────────────────────────────────────────────
 
 if [ "${INSTALL_PREZTO:-false}" = true ]; then
   if [ -d "$HOME/.zprezto" ]; then
@@ -547,7 +597,7 @@ if [ "${INSTALL_POWERLEVEL10K:-false}" = true ]; then
   fi
 fi
 
-# ── 11. OpenClaw (optional) ──────────────────────────────────────────────────
+# ── 12. OpenClaw (optional) ──────────────────────────────────────────────────
 
 if [ "${INSTALL_OPENCLAW:-false}" = true ]; then
   echo ">>> Installing OpenClaw..."
@@ -613,7 +663,7 @@ if [ "${INSTALL_OPENCLAW:-false}" = true ]; then
   fi
 fi
 
-# ── 12. macOS Defaults ───────────────────────────────────────────────────────
+# ── 13. macOS Defaults ───────────────────────────────────────────────────────
 
 echo ">>> Applying macOS defaults..."
 
@@ -669,7 +719,7 @@ if [ "${APPLY_SCREENSHOT_DEFAULTS:-false}" = true ]; then
   run_cmd "screenshots: location" defaults write com.apple.screencapture location -string "$HOME/Documents/Screenshots" || true
 fi
 
-# ── 12b. Disable Spotlight hotkey (Cmd+Space) so Raycast can use it ──────────
+# ── 13b. Disable Spotlight hotkey (Cmd+Space) so Raycast can use it ──────────
 
 if [ "${APPLY_RAYCAST_HOTKEY:-true}" = true ]; then
   echo ">>> Disabling Spotlight Cmd+Space (Raycast will claim it)..."
@@ -680,7 +730,7 @@ if [ "${APPLY_RAYCAST_HOTKEY:-true}" = true ]; then
   echo "  ℹ️  Open Raycast after setup and set Cmd+Space as its hotkey in preferences."
 fi
 
-# ── 13. Create directories ───────────────────────────────────────────────────
+# ── 14. Create directories ───────────────────────────────────────────────────
 
 echo ">>> Creating directories..."
 for dir in "${DIRS[@]-}"; do
@@ -692,11 +742,11 @@ for dir in "${DIRS[@]-}"; do
   fi
 done
 
-# ── 14. Editor extensions ────────────────────────────────────────────────────
+# ── 15. Editor extensions ────────────────────────────────────────────────────
 
 install_editor_extensions
 
-# ── 15. Post scripts ─────────────────────────────────────────────────────────
+# ── 16. Post scripts ─────────────────────────────────────────────────────────
 
 for script in "${POST_SCRIPTS[@]-}"; do
   [ -z "$script" ] && continue
