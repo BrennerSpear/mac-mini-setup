@@ -26,7 +26,8 @@ Options:
   --with-extensions   Include editor extensions in full setup
   --skip-extensions   Skip editor extensions (default)
   --config FILE       Use a custom config file (default: config.sh)
-  --handoff           Launch Claude Code after setup to finish interactively
+  --handoff           Launch Claude Code after setup to finish interactively (default)
+  --no-handoff        Skip Claude Code handoff
   --help, -h          Show this help
 EOF
 }
@@ -34,7 +35,7 @@ EOF
 DRY_RUN=false
 EXTENSIONS_ONLY=false
 SKIP_EXTENSIONS=true
-HANDOFF=false
+HANDOFF=true
 CONFIG_FILE="$SCRIPT_DIR/config.sh"
 
 while [ "$#" -gt 0 ]; do
@@ -44,6 +45,7 @@ while [ "$#" -gt 0 ]; do
     --with-extensions) SKIP_EXTENSIONS=false ;;
     --skip-extensions) SKIP_EXTENSIONS=true ;;
     --handoff)        HANDOFF=true ;;
+    --no-handoff)     HANDOFF=false ;;
     --config)         shift; CONFIG_FILE="$1" ;;
     --help|-h)        print_usage; exit 0 ;;
     *)                echo "Unknown argument: $1" >&2; print_usage >&2; exit 1 ;;
@@ -574,6 +576,31 @@ fi
 echo ">>> Applying macOS defaults..."
 
 if [ "${APPLY_DOCK_DEFAULTS:-false}" = true ]; then
+  # Clear default dock items and only add what we installed
+  if [ "${DOCK_CLEAR_DEFAULT:-true}" = true ]; then
+    defaults write com.apple.dock persistent-apps -array 2>/dev/null || true
+    defaults write com.apple.dock persistent-others -array 2>/dev/null || true
+    record_installed "dock: cleared default items"
+
+    # Add back apps that are actually installed
+    DOCK_APPS=("${DOCK_KEEP_APPS[@]-}")
+    if [ ${#DOCK_APPS[@]} -eq 0 ]; then
+      # Default: add Finder, Chrome, Terminal (and Warp if installed)
+      DOCK_APPS=("/System/Applications/Finder.app")
+      [ -d "/Applications/Google Chrome.app" ] && DOCK_APPS+=("/Applications/Google Chrome.app")
+      [ -d "/Applications/Warp.app" ] && DOCK_APPS+=("/Applications/Warp.app")
+      [ -d "/Applications/Cursor.app" ] && DOCK_APPS+=("/Applications/Cursor.app")
+      [ ! -d "/Applications/Warp.app" ] && DOCK_APPS+=("/System/Applications/Utilities/Terminal.app")
+    fi
+    for app in "${DOCK_APPS[@]}"; do
+      if [ -d "$app" ]; then
+        defaults write com.apple.dock persistent-apps -array-add \
+          "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>" 2>/dev/null || true
+      fi
+    done
+    record_installed "dock: added installed apps"
+  fi
+
   run_cmd "dock: autohide" defaults write com.apple.dock autohide -bool "${DOCK_AUTOHIDE:-true}" || true
   run_cmd "dock: orientation" defaults write com.apple.dock orientation -string "${DOCK_ORIENTATION:-right}" || true
   run_cmd "dock: tilesize" defaults write com.apple.dock tilesize -int "${DOCK_TILESIZE:-43}" || true
@@ -633,6 +660,38 @@ done
 
 print_summary
 
+# ── Generate handoff context ──────────────────────────────────────────────────
+# Extract commented-out items from config so Claude Code knows what's available
+
+SKIPPED_FORMULAE=()
+while IFS= read -r line; do
+  pkg="$(echo "$line" | sed 's/#[[:space:]]*//' | awk '{print $1}')"
+  [ -n "$pkg" ] && SKIPPED_FORMULAE+=("$pkg")
+done < <(grep '^[[:space:]]*#[[:space:]]*[a-z]' "$CONFIG_FILE" | grep -A0 -B0 'FORMULAE\|# [a-z]' 2>/dev/null || true)
+
+# Actually, let's parse it properly from the config arrays
+SKIPPED_CONFIG_ITEMS=""
+in_array=""
+while IFS= read -r line; do
+  # Detect array starts
+  if echo "$line" | grep -qE '^(FORMULAE|CASKS|BUN_GLOBALS|OPENCLAW_GLOBALS)='; then
+    in_array="$(echo "$line" | cut -d= -f1)"
+    continue
+  fi
+  # Detect array end
+  if [ -n "$in_array" ] && echo "$line" | grep -q ')'; then
+    in_array=""
+    continue
+  fi
+  # Inside an array, look for commented items
+  if [ -n "$in_array" ]; then
+    commented="$(echo "$line" | grep '^[[:space:]]*#[[:space:]]*[a-z"@]' | sed 's/^[[:space:]]*#[[:space:]]*//' | sed 's/[[:space:]]*#.*//' | tr -d '"' || true)"
+    if [ -n "$commented" ]; then
+      SKIPPED_CONFIG_ITEMS="${SKIPPED_CONFIG_ITEMS}  - [${in_array}] ${commented}\n"
+    fi
+  fi
+done < "$CONFIG_FILE"
+
 echo ""
 echo "Next steps:"
 echo "  1. Sign into apps: 1Password, Raycast, Slack, Discord, Tailscale, etc."
@@ -672,6 +731,23 @@ if [ "$HANDOFF" = true ]; then
     echo "  Handing off to Claude Code to finish setup..."
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    exec claude --dangerously-skip-permissions --prompt "$(cat "$SCRIPT_DIR/scripts/handoff-prompt.md")"
+
+    # Build handoff context with installed/failed/skipped items and available-but-not-installed
+    HANDOFF_CONTEXT="$(cat "$SCRIPT_DIR/scripts/handoff-prompt.md")
+
+## What was installed
+$(printf '%s\n' "${INSTALLED_ITEMS[@]-}" | sed 's/^/- /')
+
+## What failed
+$(printf '%s\n' "${FAILED_ITEMS[@]-}" | sed 's/^/- /')
+
+## Available but not installed (commented out in config.sh)
+These are available to install if the user wants them:
+$(echo -e "$SKIPPED_CONFIG_ITEMS")
+
+## Config file location
+$SCRIPT_DIR/config.sh — edit this to add/remove packages permanently
+"
+    exec claude --dangerously-skip-permissions -p "$HANDOFF_CONTEXT"
   fi
 fi

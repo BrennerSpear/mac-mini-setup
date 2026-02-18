@@ -46,8 +46,14 @@ Check which of these are done and help with the rest:
 - iCloud (System Settings)
 - Spotify
 
+### 6. Additional packages
+The setup summary below includes items that were commented out in config.sh
+(available but not installed). Ask the user if they want any of them installed.
+Use `brew install <formula>` or `brew install --cask <cask>` directly.
+
 ### Approach
 - Start by checking what's already configured (`gh auth status`, `git config --list`, check for SSH keys, etc.)
-- Ask the user what they want to tackle first
+- Show the user what was installed, what failed, and what's available but skipped
+- Ask what they want to tackle first
 - Be efficient — skip what's already done
 - For OpenClaw, walk through each API key they need

@@ -59,8 +59,8 @@ CASKS=(
   visual-studio-code
   docker-desktop
   sublime-text
+  warp                     # terminal
   # postman
-  # warp                   # terminal
 
   # Communication
   slack
@@ -152,6 +152,9 @@ DOCK_ORIENTATION="right"       # left, bottom, right
 DOCK_TILESIZE=43
 DOCK_MAGNIFICATION=true
 DOCK_SHOW_RECENTS=false
+DOCK_CLEAR_DEFAULT=true        # Remove all default dock items (Maps, Photos, etc.)
+# DOCK_KEEP_APPS=()            # Override: list of .app paths to keep in dock
+                                # If empty, auto-detects: Finder, Chrome, Warp/Terminal, Cursor
 
 # ── Directories to create ────────────────────────────────────────────────────
 DIRS=(
