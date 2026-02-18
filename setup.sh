@@ -154,7 +154,10 @@ set_brew_env() {
 bun_global_version() {
   local pkg="$1"
   local pj="$HOME/.bun/install/global/node_modules/$pkg/package.json"
-  [ -f "$pj" ] && sed -n 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$pj" | head -n1
+  if [ -f "$pj" ]; then
+    sed -n 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$pj" | head -n1
+  fi
+  return 0
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
