@@ -1,5 +1,12 @@
 # AGENTS.md - Workspace
 
+## Bootstrap
+**If `bootstrap/` folder exists**, this machine isn't fully set up yet.
+1. Read `bootstrap/TODO.md` every session
+2. Remind the user about unchecked items — don't let them forget
+3. Offer to help with the next incomplete step
+4. When all items are checked, delete `bootstrap/` and remove this section
+
 ## Every Session
 1. Read `SOUL.md`, `USER.md`
 2. Read `memory/daily/YYYY-MM-DD.md` (today + yesterday)
