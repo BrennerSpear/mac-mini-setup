@@ -217,6 +217,7 @@ In the `scripts/` directory:
 | `setup-zshrc.sh` | Shell aliases, git shortcuts, AI agent commands (`cc`, `claumux`, etc.) |
 | `setup-openclaw.sh` | Non-interactive OpenClaw configuration |
 | `bootstrap-openclaw-workspace.sh` | Workspace files, clawhub skills, custom skills, cron jobs |
+| `audit-openclaw.sh` | Compare existing OpenClaw against this template |
 | `create-slack-bot.sh` | Create Slack bot via Manifest API |
 | `install-arc-extensions.sh` | Opens Chrome Web Store pages for extensions |
 | `import-keyboard-shortcuts.sh` | Imports macOS keyboard shortcut plists |
@@ -228,6 +229,26 @@ POST_SCRIPTS=(
   "scripts/install-arc-extensions.sh"
 )
 ```
+
+## Auditing an existing install
+
+Already have OpenClaw running? Compare your setup against this template:
+
+```bash
+# Clone the repo (if you haven't)
+git clone https://github.com/BrennerSpear/mac-mini-setup.git ~/projects/mac-mini-setup
+
+# Run the audit
+cd ~/projects/mac-mini-setup && ./scripts/audit-openclaw.sh
+```
+
+This compares your workspace files, config, skills, and git config against the template and reports:
+- **Missing** — things the template has that you don't
+- **Conflicts** — settings that differ between your install and the template
+- **Extras** — things you have that could be worth upstreaming
+
+Or ask your OpenClaw to do it:
+> "Clone https://github.com/BrennerSpear/mac-mini-setup.git to ~/projects/mac-mini-setup and run scripts/audit-openclaw.sh, then read scripts/audit-prompt.md and give me a full analysis"
 
 ## For teams
 
