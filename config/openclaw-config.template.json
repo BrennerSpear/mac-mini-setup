@@ -74,6 +74,7 @@
         "provider": "gemini",
         "fallback": "none"
       },
+      "contextPruning": { "mode": "off" },
       "compaction": { "mode": "safeguard" },
       "heartbeat": { "every": "1h" },
       "maxConcurrent": 6,

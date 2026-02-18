@@ -117,6 +117,26 @@ else
   done
 fi
 
+# ── 2b. Install pre-commit hook for secret detection ─────────────────────────
+
+echo ""
+echo ">>> Setting up git pre-commit hook for secret detection..."
+
+HOOK_SRC="$WORKSPACE/scripts/pre-commit-secrets.sh"
+HOOK_DEST="$OPENCLAW_DIR/.git/hooks/pre-commit"
+
+if [ -f "$HOOK_DEST" ]; then
+  skip "pre-commit hook already exists"
+elif [ ! -d "$OPENCLAW_DIR/.git" ]; then
+  skip "~/.openclaw is not a git repo — skipping hook install"
+else
+  if [ -f "$HOOK_SRC" ]; then
+    run "install pre-commit hook" "cp '$HOOK_SRC' '$HOOK_DEST' && chmod +x '$HOOK_DEST'"
+  else
+    skip "pre-commit-secrets.sh not found in workspace scripts"
+  fi
+fi
+
 # ── 3. Install clawhub skills ────────────────────────────────────────────────
 
 if [ "$SKIP_SKILLS" = false ]; then

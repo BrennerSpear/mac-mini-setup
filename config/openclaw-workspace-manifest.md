@@ -1,161 +1,104 @@
 # OpenClaw Workspace Manifest
 
-What to copy from a working OpenClaw install to bootstrap a new machine.
-The setup-openclaw.sh script handles the three secret files. This doc covers
-everything else that makes OpenClaw actually useful day-to-day.
+What gets bootstrapped onto a new OpenClaw install. The `bootstrap-openclaw-workspace.sh` script handles most of this automatically.
 
 ---
 
-## 1. Cron Jobs (Generic / Recommended)
+## 1. Workspace Root Files
 
-These keep OpenClaw running smoothly. They should be recreated on any new install.
+These are injected into every agent session:
 
-| Name | Schedule | What it does |
+| File | Purpose | Action |
 |---|---|---|
-| `self-reflection` | `0 * * * *` (hourly) | Reviews recent sessions, writes lessons learned |
-| `system-watchdog` | `0 4 * * *` (daily 4am) | Checks system health, disk, services |
-| `cron-health-watchdog` | `0 */6 * * *` (every 6h) | Monitors cron jobs for failures |
-| `error-log-digest` | `0 8 * * *` (daily 8am) | Reviews gateway error logs, reports issues |
-| `workspace-activity-feed` | `0 */6 * * *` (every 6h) | Posts activity summary to Discord #activity-feed |
+| `AGENTS.md` | Operating instructions, safety rules, workflow | Customize for your agent |
+| `SOUL.md` | Personality, tone, communication style | Customize per agent |
+| `IDENTITY.md` | Name, creature, vibe, emoji | Customize |
+| `USER.md` | User profile (name, timezone, preferences) | Rewrite per user |
+| `TOOLS.md` | Tool gotchas, environment quirks | Mostly generic |
+| `MEMORY.md` | Memory index | Generic structure |
+| `HEARTBEAT.md` | Active processes to monitor | Starts empty |
 
-### Personal / Optional Cron Jobs
-These are personal — skip or adapt:
+## 2. Workspace Subdirectories
 
-| Name | Schedule | What it does |
-|---|---|---|
-| `daily-news-digest` | `0 6 * * *` | Morning news briefing via daily-digest skill |
-| `agentmail-inbox-check` | `0 9 * * *` | Checks agent email inbox |
-| One-shot reminders | `at` | Personal reminders (eth-btc ladder, Rx check, etc.) |
+### docs/
+- `openclaw-playbook.md` — OpenClaw operations guide (platform formatting, scripting, async patterns, browser automation)
+- `doc-layers.md` — Progressive-disclosure document conventions (L0-L5 layers)
 
-### Disabled (not needed on new installs)
-- `sub-agent-monitor` — experimental, currently disabled
-- `daily-workspace-commit` — disabled
-- `sync-workspace-to-obsidian` — disabled
-- `process-stop-events` — disabled
+### tools/
+Per-tool reference docs (all generic):
+- `async-polling.md` — Background job polling patterns
+- `browser.md` — Browser automation (real Chrome vs headless)
+- `discord.md` — Discord-specific formatting and conventions
+- `docker.md` — Docker usage notes
+- `pdf.md` — PDF generation via md2pdf
+- `uv-python.md` — Python package management with uv
+
+### scripts/
+- `error-digest.sh` — Gateway error log analysis (used by error-log-digest cron)
+- `md2pdf.sh` — Markdown → PDF converter (pandoc + tectonic)
+- `pre-commit-secrets.sh` — Git pre-commit hook that blocks commits containing API keys
+
+### memory/
+- `daily/` — Daily log files (created as needed, YYYY-MM-DD.md format)
 
 ---
 
-## 2. Skills
+## 3. Custom Skills (`~/.openclaw/skills/`)
 
-### Installed via clawhub (`~/.agents/skills/`)
-These get installed by `clawhub install`. Run on new machine:
+Installed from the repo's `openclaw-skills/` directory:
+
+| Skill | Purpose |
+|---|---|
+| `answeroverflow` | Search indexed Discord community Q&A |
+| `clawdstrike` | Security audit and threat model |
+| `cron-setup` | Conventions for creating cron jobs |
+| `doc-layers` | Document layer conventions |
+| `email` | Gmail via gog CLI |
+| `gog` | Google Workspace CLI |
+| `self-reflection` | Hourly session review and lesson extraction |
+| `system-watchdog` | System resource monitoring |
+
+## 4. ClawHub Skills (`~/.agents/skills/`)
+
+Installed via `clawhub install`:
 
 ```bash
-clawhub install agent-browser architecture-research caddy commit create-mcp deslop dev-serve diagrams domain-check execute-brain-dump-tasks merge-upstream modal new-brain-dump process-brain-dump research supabase tmux ui-scaffold vercel
+clawhub install agent-browser architecture-research caddy commit create-mcp deslop dev-serve diagrams domain-check merge-upstream modal new-brain-dump process-brain-dump research supabase tmux ui-scaffold vercel
 ```
 
-### Custom skills (`~/.openclaw/skills/`)
-These are local/private skills. Copy the whole directory:
+## 5. Bundled Skills
 
-**Generic (useful for anyone):**
-- `cron-setup` — conventions for creating cron jobs
-- `self-reflection` — hourly self-improvement analysis
-- `system-watchdog` — system health checks
-- `email` — Gmail via gog CLI
-- `gog` — Google Workspace CLI
-- `flights` — Google Flights search
-- `clawdstrike` — security audit
-- `doc-layers` — document management conventions
-- `answeroverflow` — search Discord community Q&A
+Controlled by `skills.allowBundled` in `openclaw.json`. Only these bundled skills load:
 
-**Personal / personal:**
-- `daily-digest` — morning news briefing (customized topics)
-- `agentmail` — agent email setup
-- `amazon` — Amazon browser automation
-- `chef` — cooking/recipes
-- `spotify-history` — Spotify API
-- `telegram-ops` — Telegram bot management
-- `voiceclone` — voice cloning
-- `vercel-speed` — Vercel performance monitoring
+discord, gemini, github, mcporter, nano-banana-pro, openai-whisper-api, session-logs, skill-creator, tmux, gog, goplaces, healthcheck, nano-pdf, openai-image-gen, slack
 
----
+All others are excluded.
 
-## 3. Workspace Files
+## 6. Cron Jobs
 
-### Root files (injected every session)
-These are the "personality and operating manual":
+Template JSON files in `cron-jobs/`:
 
-| File | What it does | Generic? |
+| Job | Schedule | Purpose |
 |---|---|---|
-| `AGENTS.md` | Operating instructions, safety rules, workflow | ✅ Mostly — adapt for your team |
-| `SOUL.md` | Personality, tone, communication style | ✅ Customize per agent |
-| `IDENTITY.md` | Name, creature, vibe, emoji | ✅ Customize |
-| `USER.md` | User profile (name, timezone, values) | ❌ Personal — rewrite per user |
-| `TOOLS.md` | Tool gotchas, environment quirks | ✅ Mostly generic |
-| `MEMORY.md` | Memory index | ✅ Generic structure |
-| `HEARTBEAT.md` | Active processes to monitor | ⚠️ Dynamic — starts empty |
+| `self-reflection` | Hourly | Reviews sessions, extracts lessons |
+| `system-watchdog` | Daily 4 AM | System health (RAM, CPU, disk, zombies) |
+| `daily-workspace-commit` | Daily 4 AM | Local git backup of workspace |
+| `error-log-digest` | Daily 8 AM | Gateway error log review |
+| `cron-health-watchdog` | Every 6 hours | Monitors cron jobs for failures |
 
-### docs/ (searchable reference)
-Generic and useful:
-- `tmux-delegation.md` — how to delegate to coding agents
-- `model-selection.md` — which models for which tasks
-- `sub-agent-guidelines.md` — sub-agent orchestration
-- `doc-layers.md` — document management
-- `openclaw-playbook.md` — OpenClaw operations guide
+See `cron-jobs/README.md` for installation instructions.
 
-### tools/ (searchable reference)
-All generic — tool-specific notes and gotchas:
-- `browser.md`, `discord.md`, `gog.md`, `ralph.md`, etc.
+## 7. Git Pre-commit Hook
 
-### scripts/ (automation)
-Generic:
-- `tmux-session.sh` — tmux session management
-- `error-digest.sh` — error log analysis
-- `sync-obsidian.sh` — workspace → Obsidian sync
-
-### memory/ (knowledge base)
-- `about-user.md` — personal (rewrite per user)
-- `daily/` — daily logs (starts empty)
+The `pre-commit-secrets.sh` script scans staged files for common API key patterns (Anthropic, OpenAI, Google, GitHub, AWS, Stripe, etc.) and blocks the commit if any are found. Installed automatically by the bootstrap script into `~/.openclaw/.git/hooks/pre-commit`.
 
 ---
 
-## 4. Config Template Updates
+## Bootstrap Sequence
 
-The existing `openclaw-config.template.json` should include:
-
-### Agent defaults (already there)
-- model, fallbacks, aliases
-- memorySearch with Gemini provider
-- compaction mode
-- heartbeat interval
-- max concurrent sessions/subagents
-
-### Skills config (add to template)
-```json
-"skills": {
-  "load": { "extraDirs": ["~/.agents/skills"] },
-  "install": { "nodeManager": "bun" },
-  "entries": {
-    "brave-search": { "apiKey": "$BRAVE_API_KEY" },
-    "goplaces": { "apiKey": "$GOOGLE_PLACES_API_KEY" },
-    "nano-banana-pro": { "apiKey": "$GEMINI_API_KEY" }
-  }
-}
-```
-
-### Plugins (add to template)
-```json
-"plugins": {
-  "allow": ["device-pair", "memory-core", "discord", "diagnostics-otel"],
-  "entries": {
-    "discord": { "enabled": true },
-    "diagnostics-otel": { "enabled": true }
-  }
-}
-```
-
----
-
-## 5. Bootstrap Sequence
-
-After secrets files are placed and `setup-openclaw.sh` runs:
-
-1. **Install clawhub skills** — `clawhub install <list>`
-2. **Copy custom skills** — from backup/repo to `~/.openclaw/skills/`
-3. **Copy workspace files** — AGENTS.md, SOUL.md, etc. to `~/.openclaw/workspace/`
-4. **Copy docs/** — reference docs
-5. **Copy tools/** — tool-specific notes
-6. **Copy scripts/** — automation scripts
-7. **Create cron jobs** — via `openclaw` or the cron API
-8. **Start gateway** — `openclaw gateway start`
-9. **Verify** — `setup-openclaw.sh --check`
+1. Run `setup.sh` (installs Homebrew, apps, tools, OpenClaw)
+2. Run `scripts/setup-openclaw.sh` (configures OpenClaw with secrets)
+3. Run `scripts/bootstrap-openclaw-workspace.sh` (copies all the above)
+4. Customize: `USER.md`, `SOUL.md`, `IDENTITY.md`
+5. Start gateway: `openclaw gateway start`
+6. Create cron jobs (ask agent or use JSON templates)
