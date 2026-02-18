@@ -61,7 +61,7 @@ Our conventions for creating cron jobs in OpenClaw.
 
 1. **Be explicit with commands** — Give the cron agent exact bash commands to run. It doesn't have our context.
 2. **Include skip conditions** — If there's nothing to do, the agent should reply `SKIP` to avoid wasting tokens.
-3. **Handle its own output** — The job should post results to Telegram (or wherever) using the `message` tool directly. Don't rely on delivery mode for formatted output.
+3. **Handle its own output** — The job should post results to your configured channel using the `message` tool directly. Don't rely on delivery mode for formatted output.
 4. **Include error handling** — What should happen if a command fails?
 5. **Keep instructions self-contained** — The cron agent wakes up with no context. Everything it needs should be in the task message.
 
@@ -83,8 +83,8 @@ Configure the channel and target to match your setup.
 
 | Mode | When to Use |
 |------|------------|
-| `"mode": "none"` | Job posts its own output to Telegram (most common) |
-| `"mode": "announce"` | OpenClaw auto-delivers the agent's final message to a channel. Use when output IS the message (e.g., daily digest). Set `"channel": "telegram"` and `"to": "YOUR_GROUP_ID:TOPIC_ID"` |
+| `"mode": "none"` | Job posts its own output via the `message` tool (most common) |
+| `"mode": "announce"` | OpenClaw auto-delivers the agent's final message to a channel. Use when output IS the message (e.g., daily digest). Set `"channel"` and `"to"` to your target. |
 
 ## Anti-Patterns
 
@@ -92,15 +92,6 @@ Configure the channel and target to match your setup.
 ❌ **Don't create cron jobs that loop/poll** — each run should be a single check. If you need polling, use a background exec script instead.
 ❌ **Don't set delivery mode to "announce"** and also have the job post to a channel — you'll get duplicate messages.
 
-## Existing Jobs (Reference)
+## Checking Current Jobs
 
-Check current jobs anytime with the `cron list` tool. As of setup:
-
-- `workspace-activity-feed` — Every 30 min, commits workspace changes, posts to activity feed
-- `agentmail-inbox-check` — Every 30 min, checks for new emails, responds to agents
-- `sub-agent-monitor` — Every 15 min, checks on stalled sub-agents
-- `self-reflection` — Hourly, reviews recent sessions for lessons learned
-- `daily-workspace-commit` — Daily 4 AM, git commits workspace changes
-- `system-watchdog` — Daily 4 AM, checks system resources
-- `OpenClaw Daily News Digest` — Daily 6 AM, generates news digest
-- `sticker-sales-loop` — Weekly Monday 2 PM, agent outreach for sticker store
+Use the `cron list` tool to see all configured jobs anytime.

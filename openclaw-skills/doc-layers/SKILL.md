@@ -73,11 +73,11 @@ research/<topic-slug>/
 
 ### Model Selection for Condensing:
 - **L5 → L4** (deep dive → report): Use a strong model (Opus or Sonnet) — needs judgment about what matters
-- **L4 → L3** (report → summary): Mid-tier is fine (Kimi, Sonnet)
+- **L4 → L3** (report → summary): Mid-tier is fine (Sonnet)
 - **L3 → L2 → L1 → L0**: Can be done by any model, even inline
 
 ### Delivery:
-When delivering to chat (Telegram, etc.):
+When delivering to chat:
 1. Send L2 (Brief) as the chat message
 2. Attach `report.pdf` if PDF was generated
 3. Mention where the full docs live
