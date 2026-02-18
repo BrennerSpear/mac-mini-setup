@@ -122,20 +122,13 @@
       "token": "$DISCORD_BOT_TOKEN",
       "groupPolicy": "allowlist",
       "dmPolicy": "pairing",
-      "requireMention": false,
       "allowFrom": [
         "YOUR_DISCORD_USER_ID"
       ],
       "guilds": {
         "YOUR_GUILD_ID": {
-          "_comment": "Your Discord server ID. Right-click server name > Copy Server ID (enable Developer Mode in Discord settings)",
-          "requireMention": false,
-          "channels": {
-            "YOUR_GENERAL_CHANNEL_ID": {
-              "_comment": "Right-click channel > Copy Channel ID",
-              "allow": true
-            }
-          }
+          "_comment": "Just listing the guild ID here allows ALL channels in this server. Add a 'channels' object only if you need per-channel system prompts or want to restrict to specific channels.",
+          "requireMention": false
         }
       }
     },

@@ -143,18 +143,28 @@ Then in your `openclaw-secrets.json`, fill in:
     "allowFrom": ["123456789..."],      ← your Discord user ID
     "guilds": {
       "987654321...": {                 ← your server ID
-        "channels": {
-          "111222333...": {             ← channel ID
-            "allow": true
-          }
-        }
+        "requireMention": false
       }
     }
   }
 }
 ```
 
-Add more channels by adding more entries to the `channels` object. Each channel can have an optional `systemPrompt` for specialized behavior.
+That's it — listing a guild ID allows **all channels** in that server. You only need to add a `channels` object if you want per-channel system prompts:
+
+```json
+"guilds": {
+  "987654321...": {
+    "requireMention": false,
+    "channels": {
+      "111222333...": {
+        "allow": true,
+        "systemPrompt": "This channel is for research tasks..."
+      }
+    }
+  }
+}
+```
 
 **Invite the bot to your server:**
 ```
