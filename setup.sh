@@ -581,6 +581,15 @@ if [ "${INSTALL_OPENCLAW:-false}" = true ]; then
   OC_ENV="${OPENCLAW_SECRETS_ENV:-$REPO_DIR/openclaw-secrets.env}"
   OC_AUTH="${OPENCLAW_SECRETS_AUTH:-$REPO_DIR/openclaw-auth-profiles.json}"
 
+  # Auto-create .env from template if it doesn't exist yet
+  if [ ! -f "$OC_ENV" ] && [ -f "$REPO_DIR/config/openclaw-env.template" ]; then
+    echo ">>> Creating openclaw-secrets.env from template..."
+    cp "$REPO_DIR/config/openclaw-env.template" "$OC_ENV"
+    record_installed "openclaw-secrets.env (from template — fill in your API keys)"
+    echo "  ℹ️  Edit $OC_ENV with your API keys, then re-run setup or run:"
+    echo "     scripts/setup-openclaw.sh --env $OC_ENV"
+  fi
+
   if [ -f "$OC_CONFIG" ]; then
     echo ">>> Configuring OpenClaw from secrets file..."
     SETUP_ARGS=(--config "$OC_CONFIG")
